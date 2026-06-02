@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resultados de Búsqueda - 360° Traveling</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .results-header {
+            background-color: var(--primary);
+            color: var(--white);
+            padding: 30px 0;
+            margin-bottom: 30px;
+        }
+        .search-summary {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .search-route {
+            font-size: 1.8rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .search-details {
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.8);
+            display: flex;
+            gap: 20px;
+        }
+        .results-container {
+            display: flex;
+            gap: 30px;
+            margin-bottom: 60px;
+        }
+        .filters-sidebar {
+            width: 280px;
+            flex-shrink: 0;
+            background: var(--white);
+            border-radius: var(--radius-md);
+            padding: 25px;
+            box-shadow: var(--shadow-sm);
+            height: fit-content;
+            border: 1px solid var(--border);
+        }
+        .filter-section {
+            margin-bottom: 25px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 20px;
+        }
+        .filter-section:last-child { border-bottom: none; }
+        .filter-title { font-weight: 700; margin-bottom: 15px; font-size: 1.1rem; color: var(--text-main); }
+        .filter-option {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 12px;
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            cursor: pointer;
+        }
+        .filter-option input[type="checkbox"] { accent-color: var(--primary); width: 18px; height: 18px; }
+        .results-list { flex-grow: 1; }
+        
+        /* Result Cards */
+        .result-card {
+            background: var(--white);
+            border-radius: var(--radius-md);
+            margin-bottom: 25px;
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            transition: var(--transition);
+        }
+        .result-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); border-color: var(--primary-light); }
+        
+        .card-info { flex: 1; padding: 25px; border-right: 1px dashed var(--border); }
+        .card-price-col { width: 240px; padding: 25px; display: flex; flex-direction: column; justify-content: center; align-items: center; background: #fafafa; }
+        
+        .flight-leg { display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px; }
+        .airline-box { display: flex; align-items: center; gap: 12px; width: 160px; }
+        .airline-logo { width: 45px; height: 45px; border-radius: 50%; background: var(--bg-main); display: flex; align-items: center; justify-content: center; color: var(--primary); font-weight: 800; border: 1px solid var(--border); }
+        
+        .time-box { text-align: center; }
+        .time-box .time { font-size: 1.5rem; font-weight: 700; color: var(--text-main); }
+        .time-box .city { font-size: 0.85rem; color: var(--text-muted); font-weight: 500; }
+        
+        .duration-line { flex: 1; margin: 0 30px; position: relative; text-align: center; }
+        .duration-line::before { content: ''; position: absolute; top: 50%; left: 0; width: 100%; height: 2px; background: var(--border); }
+        .duration-text { background: var(--white); padding: 0 10px; position: relative; z-index: 1; font-size: 0.8rem; color: var(--text-muted); font-weight: 600; }
+        
+        .hotel-flex { display: flex; gap: 20px; }
+        .hotel-img { width: 200px; height: 150px; border-radius: var(--radius-sm); object-fit: cover; }
+        .hotel-details { flex: 1; }
+        .hotel-stars { color: #f1c40f; margin-bottom: 5px; }
+        
+        .price-val { font-size: 2rem; font-weight: 800; color: var(--primary); margin-bottom: 5px; }
+        .price-desc { font-size: 0.8rem; color: var(--text-muted); font-weight: 600; margin-bottom: 15px; }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="/" class="logo">
+                <img src="{{ url_for('static', filename='img/logo-360-traveling.jpg') }}" alt="360° Traveling">
+                <span>360° <span class="highlight">Traveling</span></span>
+            </a>
+            <div class="nav-links">
+                <a href="/#vuelos">Vuelos</a>
+                <a href="/#hoteles">Hoteles</a>
+                <a href="/#paquetes">Paquetes</a>
+            </div>
+            <div class="nav-actions">
+                <div class="user-profile"><i class="fa-solid fa-user-circle"></i> Mi Cuenta</div>
+            </div>
+        </div>
+    </nav>
+
+    <header class="results-header">
+        <div class="container">
+            <div class="search-summary">
+                <div class="search-route" id="summary-route">Cargando búsqueda...</div>
+                <div class="search-details" id="summary-details">Un momento por favor</div>
+            </div>
+            <div id="back-to-checkout-container" style="display: none; margin-top: 20px;">
+                <a href="/checkout" class="btn-currency" style="background: rgba(255,255,255,0.2); border: 1px solid white; color: white;">
+                    <i class="fa-solid fa-arrow-left mr-2"></i> Volver al Checkout (Mantener selección actual)
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="results-container">
+            <aside class="filters-sidebar">
+                <div class="filter-section">
+                    <div class="filter-title">Escalas</div>
+                    <label class="filter-option"><input type="checkbox" checked> Directo</label>
+                    <label class="filter-option"><input type="checkbox"> 1 Escala</label>
+                    <label class="filter-option"><input type="checkbox"> 2+ Escalas</label>
+                </div>
+                <div class="filter-section">
+                    <div class="filter-title">Aerolíneas</div>
+                    <label class="filter-option"><input type="checkbox" checked> BOA</label>
+                    <label class="filter-option"><input type="checkbox" checked> LATAM</label>
+                    <label class="filter-option"><input type="checkbox" checked> Avianca</label>
+                </div>
+                <div class="filter-section">
+                    <div class="filter-title">Precio Máximo</div>
+                    <input type="range" min="100" max="5000" value="5000" style="width: 100%; accent-color: var(--primary);">
+                    <div style="display: flex; justify-content: space-between; margin-top: 10px; font-size: 0.8rem; font-weight: 600; color: var(--text-muted);">
+                        <span>$100</span>
+                        <span>$5000</span>
+                    </div>
+                </div>
+            </aside>
+
+            <main class="results-list" id="results-list">
+                <!-- Los resultados se cargarán dinámicamente -->
+                <div class="text-center py-5">
+                    <i class="fa-solid fa-spinner fa-spin fa-3x text-primary mb-3"></i>
+                    <p>Buscando las mejores ofertas para ti...</p>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-bottom">
+                <p>&copy; 2026 360° Traveling. Todos los derechos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script>
+        // Lógica específica de la página de resultados
+        document.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const type = urlParams.get('type') || 'vuelos';
+            const origin = urlParams.get('origen') || 'Santa Cruz';
+            const dest = urlParams.get('destino') || 'Miami';
+            const date = urlParams.get('fecha') || '';
+
+            document.getElementById('summary-route').innerHTML = `${origin} <i class="fa-solid fa-arrow-right mx-2"></i> ${dest}`;
+            document.getElementById('summary-details').innerHTML = `<span><i class="fa-solid fa-calendar"></i> ${date || 'Fecha flexible'}</span> <span><i class="fa-solid fa-user"></i> 1 Pasajero</span>`;
+
+            // Mostrar botón de volver si ya hay items
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            if (cart.length > 0) {
+                document.getElementById('back-to-checkout-container').style.display = 'block';
+            }
+
+            loadResults(type, origin, dest, date);
+        });
+
+        async function loadResults(type, origin, dest, date) {
+            console.log(`Cargando resultados para: ${type}, Origen: ${origin}, Destino: ${dest}, Fecha: ${date}`);
+            const list = document.getElementById('results-list');
+            try {
+                let url = `/api/${type}/buscar?origen=${origin}&destino=${dest}&fecha=${date}`;
+                if (type === 'vuelo_hotel') url = `/api/paquetes/buscar?destino=${dest}`;
+                if (type === 'hoteles' || type === 'transporte' || type === 'actividades') url = `/api/${type}/buscar?destino=${origin}`;
+                if (type === 'seguros') url = `/api/seguros/buscar`;
+                
+                console.log(`Llamando a API: ${url}`);
+                const response = await fetch(url);
+                const result = await response.json();
+                console.log('Resultado de API:', result);
+                
+                if (result.status === 'success') {
+                    renderResults(result.data, type);
+                } else {
+                    list.innerHTML = `<p class="text-center">Error en la API: ${result.message || 'Desconocido'}</p>`;
+                }
+            } catch (e) {
+                console.error('Error al cargar resultados:', e);
+                list.innerHTML = '<p class="text-center">Error de conexión al cargar resultados.</p>';
+            }
+        }
+
+        function renderResults(data, type) {
+            console.log(`Renderizando ${data.length} resultados de tipo ${type}`);
+            const list = document.getElementById('results-list');
+            list.innerHTML = '';
+            
+            if (!data || data.length === 0) {
+                list.innerHTML = '<div class="text-center py-5"><h3>No se encontraron resultados</h3><p>Intenta con otra ciudad o fecha.</p></div>';
+                return;
+            }
+
+            data.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'result-card';
+                
+                let html = '';
+                if (type === 'vuelos') {
+                    html = `
+                        <div class="card-info">
+                            <div class="flight-leg">
+                                <div class="airline-box">
+                                    <div class="airline-logo">${item.aerolinea[0]}</div>
+                                    <div style="font-weight: 700;">${item.aerolinea}</div>
+                                </div>
+                                <div class="time-box">
+                                    <div class="time">${item.hora}</div>
+                                    <div class="city">${item.origen}</div>
+                                </div>
+                                <div class="duration-line">
+                                    <div class="duration-text">Directo</div>
+                                </div>
+                                <div class="time-box">
+                                    <div class="time">--:--</div>
+                                    <div class="city">${item.destino}</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-price-col">
+                            <div class="price-val">USD ${item.precio}</div>
+                            <div class="price-desc">Precio por adulto</div>
+                            <button class="btn-search ripple" onclick="goToCheckout('${type}', '${item.id}', '${item.precio}', '${item.origen} a ${item.destino}')" style="padding: 10px 25px; width: 100%;">Seleccionar</button>
+                        </div>
+                    `;
+                } else if (type === 'hoteles') {
+                    html = `
+                        <div class="card-info">
+                            <div class="hotel-flex">
+                                <img src="https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=300&q=80" class="hotel-img">
+                                <div class="hotel-details">
+                                    <div class="hotel-stars">${'★'.repeat(item.estrellas)}</div>
+                                    <div class="hotel-title" style="font-size: 1.4rem; font-weight: 800; color: var(--primary);">${item.nombre}</div>
+                                    <div style="color: var(--text-muted); font-weight: 500;"><i class="fa-solid fa-location-dot"></i> ${item.destino}</div>
+                                    <div style="margin-top: 15px; display: flex; gap: 10px;">
+                                        <span style="background: #e8f5e9; color: #2e7d32; padding: 4px 10px; border-radius: 4px; font-size: 0.8rem; font-weight: 700;">Cancelación Gratuita</span>
+                                        <span style="background: #fff3e0; color: #ef6c00; padding: 4px 10px; border-radius: 4px; font-size: 0.8rem; font-weight: 700;">Desayuno Incluido</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-price-col">
+                            <div class="price-val">USD ${item.precio_noche}</div>
+                            <div class="price-desc">Precio por noche</div>
+                            <button class="btn-search ripple" onclick="goToCheckout('${type}', '${item.id}', '${item.precio_noche}', '${item.nombre}')" style="padding: 10px 25px; width: 100%;">Reservar</button>
+                        </div>
+                    `;
+                } else if (type === 'vuelo_hotel' || type === 'paquetes') {
+                    html = `
+                        <div class="card-info">
+                            <div class="hotel-flex">
+                                <img src="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=300&q=80" class="hotel-img">
+                                <div class="hotel-details">
+                                    <div class="hotel-title" style="font-size: 1.4rem; font-weight: 800; color: var(--secondary);">${item.nombre}</div>
+                                    <div style="color: var(--text-muted); font-weight: 500;"><i class="fa-solid fa-suitcase-rolling"></i> ${item.noches} Noches | Vuelo + Hotel</div>
+                                    <div style="margin-top: 10px; font-size: 0.9rem;">${item.hotel.nombre} + Vuelo ${item.vuelo.aerolinea}</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-price-col">
+                            <div class="price-val">USD ${item.precio_total}</div>
+                            <div class="price-desc">Precio total paquete</div>
+                            <button class="btn-search ripple" onclick="goToCheckout('${type}', '${item.id}', '${item.precio_total}', '${item.nombre}')" style="padding: 10px 25px; width: 100%;">Comprar</button>
+                        </div>
+                    `;
+                } else if (type === 'transporte') {
+                    html = `
+                        <div class="card-info">
+                            <div class="hotel-flex">
+                                <div class="airline-logo" style="width: 60px; height: 60px; font-size: 1.5rem;"><i class="fa-solid fa-car"></i></div>
+                                <div class="hotel-details">
+                                    <div class="hotel-title" style="font-size: 1.4rem; font-weight: 800; color: var(--text-main);">${item.nombre}</div>
+                                    <div style="color: var(--text-muted); font-weight: 500;"><i class="fa-solid fa-location-dot"></i> Disponible en ${item.destino}</div>
+                                    <div style="margin-top: 10px; display: flex; gap: 10px;">
+                                        <span style="background: #e3f2fd; color: #1565c0; padding: 4px 10px; border-radius: 4px; font-size: 0.8rem; font-weight: 700;">Seguro Incluido</span>
+                                        <span style="background: #f3e5f5; color: #7b1fa2; padding: 4px 10px; border-radius: 4px; font-size: 0.8rem; font-weight: 700;">GPS Gratuito</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-price-col">
+                            <div class="price-val">USD ${item.precio}</div>
+                            <div class="price-desc">Precio final trayecto</div>
+                            <button class="btn-search ripple" onclick="goToCheckout('${type}', '${item.id}', '${item.precio}', '${item.nombre}')" style="padding: 10px 25px; width: 100%;">Añadir</button>
+                        </div>
+                    `;
+                } else if (type === 'seguros') {
+                    html = `
+                        <div class="card-info">
+                            <div class="hotel-flex">
+                                <div class="airline-logo" style="width: 60px; height: 60px; font-size: 1.5rem; background: #e3f2fd;"><i class="fa-solid fa-shield-halved"></i></div>
+                                <div class="hotel-details">
+                                    <div class="hotel-title" style="font-size: 1.4rem; font-weight: 800; color: var(--primary);">${item.nombre}</div>
+                                    <div style="color: var(--text-muted); font-weight: 500;"><i class="fa-solid fa-circle-check"></i> Cobertura Médica y de Equipaje</div>
+                                    <div style="margin-top: 10px; display: flex; gap: 10px;">
+                                        <span style="background: #e8f5e9; color: #2e7d32; padding: 4px 10px; border-radius: 4px; font-size: 0.8rem; font-weight: 700;">Atención 24/7</span>
+                                        <span style="background: #e3f2fd; color: #1565c0; padding: 4px 10px; border-radius: 4px; font-size: 0.8rem; font-weight: 700;">Global</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-price-col">
+                            <div class="price-val">USD ${item.precio}</div>
+                            <div class="price-desc">Precio por persona</div>
+                            <button class="btn-search ripple" onclick="goToCheckout('${type}', '${item.id}', '${item.precio}', '${item.nombre}')" style="padding: 10px 25px; width: 100%;">Añadir Seguro</button>
+                        </div>
+                    `;
+                } else if (type === 'actividades') {
+                    html = `
+                        <div class="card-info">
+                            <div class="hotel-flex">
+                                <div class="airline-logo" style="width: 60px; height: 60px; font-size: 1.5rem; background: #fff3e0;"><i class="fa-solid fa-camera-retro"></i></div>
+                                <div class="hotel-details">
+                                    <div class="hotel-title" style="font-size: 1.4rem; font-weight: 800; color: var(--secondary);">${item.nombre}</div>
+                                    <div style="color: var(--text-muted); font-weight: 500;"><i class="fa-solid fa-location-dot"></i> ${item.destino}</div>
+                                    <div style="margin-top: 10px; display: flex; gap: 10px;">
+                                        <span style="background: #fff3e0; color: #ef6c00; padding: 4px 10px; border-radius: 4px; font-size: 0.8rem; font-weight: 700;">Guía Bilingüe</span>
+                                        <span style="background: #f3e5f5; color: #7b1fa2; padding: 4px 10px; border-radius: 4px; font-size: 0.8rem; font-weight: 700;">Grupal</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-price-col">
+                            <div class="price-val">USD ${item.precio}</div>
+                            <div class="price-desc">Precio por persona</div>
+                            <button class="btn-search ripple" onclick="goToCheckout('${type}', '${item.id}', '${item.precio}', '${item.nombre}')" style="padding: 10px 25px; width: 100%;">Añadir Actividad</button>
+                        </div>
+                    `;
+                }
+                card.innerHTML = html;
+                list.appendChild(card);
+            });
+        }
+
+        function goToCheckout(type, id, price, route) {
+            const newItem = { type, id, price, route };
+            
+            // Obtener carrito actual
+            let cart = JSON.parse(localStorage.getItem('cart')) || [];
+            cart.push(newItem);
+            
+            // Guardar carrito
+            localStorage.setItem('cart', JSON.stringify(cart));
+            localStorage.removeItem('pending_booking'); // Limpiar legacy
+            
+            window.location.href = `/checkout`;
+        }
+    </script>
+</body>
+</html>

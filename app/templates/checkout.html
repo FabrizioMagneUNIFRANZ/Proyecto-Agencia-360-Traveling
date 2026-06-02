@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout - 360° Traveling</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .checkout-container { display: flex; gap: 40px; margin: 60px auto; }
+        .main-column { flex: 1; }
+        .sidebar { width: 380px; flex-shrink: 0; }
+        
+        .checkout-card {
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            padding: 35px;
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 30px;
+            border: 1px solid var(--border);
+        }
+        .card-header {
+            font-size: 1.5rem;
+            font-weight: 800;
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            color: var(--primary);
+        }
+        .form-row { display: flex; gap: 20px; margin-bottom: 25px; }
+        .input-group { flex: 1; display: flex; flex-direction: column; gap: 8px; }
+        .input-group label { font-size: 0.95rem; font-weight: 700; color: var(--text-main); }
+        .input-group input, .input-group select { padding: 14px; border: 1px solid var(--border); border-radius: var(--radius-sm); font-family: inherit; font-size: 1rem; }
+        
+        .summary-box { background: var(--bg-main); border-radius: var(--radius-md); padding: 25px; margin-top: 20px; }
+        .summary-item { display: flex; justify-content: space-between; margin-bottom: 12px; font-weight: 500; color: var(--text-muted); }
+        .summary-total { border-top: 2px solid var(--border); margin-top: 20px; padding-top: 20px; display: flex; justify-content: space-between; font-size: 1.6rem; font-weight: 800; color: var(--primary); }
+        
+        .stepper { font-weight: 600; color: var(--text-muted); display: flex; align-items: center; gap: 10px; }
+        .stepper .active { color: var(--primary); }
+        
+        .alert-info { background: #e3f2fd; color: #0d47a1; padding: 15px 20px; border-radius: var(--radius-md); margin-bottom: 30px; border-left: 5px solid var(--primary); font-weight: 500; }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="/" class="logo">
+                <img src="{{ url_for('static', filename='img/logo-360-traveling.jpg') }}" alt="360° Traveling">
+                <span>360° <span class="highlight">Traveling</span></span>
+            </a>
+            <div class="stepper">
+                <span>1. Selección</span> <i class="fa-solid fa-chevron-right mx-1"></i>
+                <span class="active">2. Checkout</span> <i class="fa-solid fa-chevron-right mx-1"></i>
+                <span>3. Pago</span>
+            </div>
+            <div class="nav-actions">
+                <div class="user-profile"><i class="fa-solid fa-lock"></i> Pago Seguro</div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container checkout-container">
+        <main class="main-column">
+            <div class="alert-info">
+                <i class="fa-solid fa-database mr-2"></i> Tus datos serán registrados en nuestro sistema para gestionar tu reserva.
+            </div>
+
+            <form id="checkout-form">
+                <div class="checkout-card">
+                    <div class="card-header"><i class="fa-solid fa-user"></i> Datos del Pasajero</div>
+                    <div class="form-row">
+                        <div class="input-group">
+                            <label>Nombres</label>
+                            <input type="text" id="name" required placeholder="Ej. Juan">
+                        </div>
+                        <div class="input-group">
+                            <label>Apellidos</label>
+                            <input type="text" id="lastname" required placeholder="Ej. Pérez">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="input-group">
+                            <label>Tipo Documento</label>
+                            <select id="doc-type">
+                                <option value="ci">CI (Bolivia)</option>
+                                <option value="passport">Pasaporte</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label>Nro. Documento</label>
+                            <input type="text" id="doc-num" required placeholder="Ej. 1234567">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="input-group">
+                            <label>Email</label>
+                            <input type="email" id="email" required placeholder="tu@email.com">
+                        </div>
+                        <div class="input-group">
+                            <label>Teléfono</label>
+                            <input type="tel" id="phone" required placeholder="Ej. 70000000">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="checkout-card" style="border: 2px solid var(--primary-light); background: rgba(0, 86, 179, 0.02);">
+                    <div class="card-header"><i class="fa-solid fa-user-plus"></i> Crear Cuenta</div>
+                    <p style="color: var(--text-muted); margin-bottom: 20px;">Guarda tus datos para futuras compras y accede a ofertas exclusivas.</p>
+                    <div class="form-row">
+                        <div class="input-group">
+                            <label>Contraseña</label>
+                            <input type="password" id="password" placeholder="Mínimo 8 caracteres">
+                        </div>
+                        <div class="input-group">
+                            <label>Confirmar Contraseña</label>
+                            <input type="password" placeholder="Repite tu contraseña">
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-search ripple" style="width: 100%; padding: 20px; font-size: 1.2rem; border-radius: 50px;">
+                    Confirmar Datos y Continuar al Pago <i class="fa-solid fa-arrow-right ml-2"></i>
+                </button>
+            </form>
+        </main>
+
+        <aside class="sidebar">
+            <div class="checkout-card" style="position: sticky; top: 100px;">
+                <div class="card-header" style="font-size: 1.2rem;">Resumen del Viaje</div>
+                
+                <div id="cart-items">
+                    <!-- Dinámico -->
+                </div>
+
+                <div id="package-badge" style="display: none; background: linear-gradient(135deg, #FF6B00 0%, #ff9e57 100%); color: white; padding: 15px; border-radius: var(--radius-md); margin-top: 20px; text-align: center;">
+                    <i class="fa-solid fa-gift"></i> ¡Felicidades! Se ha formado un <strong>Paquete Turístico</strong>. Aplicamos un 15% de descuento.
+                </div>
+
+                <div class="summary-box">
+                    <div class="summary-item"><span>Subtotal</span> <span id="subtotal-price">USD 0.00</span></div>
+                    <div id="discount-row" class="summary-item" style="display: none; color: var(--success); font-weight: 700;">
+                        <span>Descuento Paquete (15%)</span> <span id="discount-val">-USD 0.00</span>
+                    </div>
+                    <div class="summary-item" style="color: var(--success);"><span>Gestión 360°</span> <span>GRATIS</span></div>
+                    <div class="summary-total"><span>Total</span> <span id="total-price">USD 0.00</span></div>
+                </div>
+                
+                <div style="margin-top: 30px;">
+                    <h4 style="font-size: 0.9rem; margin-bottom: 15px; color: var(--text-main);">¿Deseas añadir algo más?</h4>
+                    <div style="display: flex; flex-direction: column; gap: 10px;">
+                        <button type="button" class="btn-book" style="font-size: 0.8rem; padding: 8px;" onclick="addMore('hoteles')">+ Añadir Hotel</button>
+                        <button type="button" class="btn-book" style="font-size: 0.8rem; padding: 8px;" onclick="addMore('transporte')">+ Añadir Transporte</button>
+                        <button type="button" class="btn-book" style="font-size: 0.8rem; padding: 8px;" onclick="addMore('seguros')">+ Añadir Seguro</button>
+                        <button type="button" class="btn-book" style="font-size: 0.8rem; padding: 8px;" onclick="addMore('actividades')">+ Añadir Actividad</button>
+                    </div>
+                </div>
+
+                <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 15px; text-align: center;">
+                    <i class="fa-solid fa-shield-halved"></i> Compra protegida por SSL
+                </p>
+            </div>
+        </aside>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-bottom">
+                <p>&copy; 2026 360° Traveling. Todos los derechos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        let cart = [];
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const initialItem = JSON.parse(localStorage.getItem('pending_booking'));
+            if (initialItem) {
+                cart.push(initialItem);
+                localStorage.removeItem('pending_booking'); // Mover al estado actual
+            } else {
+                const savedCart = JSON.parse(localStorage.getItem('cart'));
+                if (savedCart) cart = savedCart;
+            }
+
+            if (cart.length === 0) { window.location.href = '/'; return; }
+            
+            updateSummary();
+
+            document.getElementById('checkout-form').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                const total = localStorage.getItem('total_to_pay');
+                const passengerData = {
+                    name: document.getElementById('name').value,
+                    lastname: document.getElementById('lastname').value,
+                    email: document.getElementById('email').value,
+                    phone: document.getElementById('phone').value,
+                    doc_type: document.getElementById('doc-type').value,
+                    doc_num: document.getElementById('doc-num').value,
+                    cart: cart,
+                    total: total
+                };
+
+                // Guardar en la base de datos MySQL antes de continuar
+                try {
+                    const response = await fetch('/api/reservas/confirmar', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(passengerData)
+                    });
+                    
+                    const result = await response.json();
+                    if (result.status === 'success') {
+                        localStorage.setItem('passenger_data', JSON.stringify(passengerData));
+                        localStorage.setItem('cart', JSON.stringify(cart));
+                        localStorage.setItem('last_reserva_id', result.id_reserva);
+                        window.location.href = '/payment';
+                    } else {
+                        alert('Error al guardar la reserva: ' + result.message);
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('No se pudo conectar con el servidor para guardar la reserva.');
+                }
+            });
+        });
+
+        function updateSummary() {
+            const cartList = document.getElementById('cart-items');
+            const subtotalEl = document.getElementById('subtotal-price');
+            const totalEl = document.getElementById('total-price');
+            const discountRow = document.getElementById('discount-row');
+            const discountVal = document.getElementById('discount-val');
+            const packageBadge = document.getElementById('package-badge');
+
+            cartList.innerHTML = '';
+            let subtotal = 0;
+            let hasFlight = false;
+            let hasHotel = false;
+            let hasTransport = false;
+
+            cart.forEach((item, index) => {
+                subtotal += parseFloat(item.price);
+                if (item.type === 'vuelos') hasFlight = true;
+                if (item.type === 'hoteles') hasHotel = true;
+                if (item.type === 'vuelo_hotel' || item.type === 'paquetes') { hasFlight = true; hasHotel = true; }
+                if (item.type === 'transporte') hasTransport = true;
+                if (item.type === 'seguros') { /* opcional logic */ }
+                if (item.type === 'actividades') { /* opcional logic */ }
+
+                const itemDiv = document.createElement('div');
+                itemDiv.style.cssText = 'margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px dashed var(--border); position: relative;';
+                itemDiv.innerHTML = `
+                    <div style="font-weight: 800; font-size: 1rem; color: var(--text-main);">${item.route}</div>
+                    <div style="color: var(--text-muted); font-size: 0.8rem; font-weight: 600;">${item.type.toUpperCase()} • USD ${item.price}</div>
+                    <button type="button" onclick="removeItem(${index})" style="position: absolute; right: 0; top: 0; background: none; border: none; color: var(--danger); cursor: pointer;"><i class="fa-solid fa-trash"></i></button>
+                `;
+                cartList.appendChild(itemDiv);
+            });
+
+            // Lógica de Paquete Turístico
+            let total = subtotal;
+            if (hasFlight && hasHotel && hasTransport) {
+                const discount = subtotal * 0.15;
+                total = subtotal - discount;
+                discountRow.style.display = 'flex';
+                discountVal.innerText = `-USD ${discount.toFixed(2)}`;
+                packageBadge.style.display = 'block';
+            } else {
+                discountRow.style.display = 'none';
+                packageBadge.style.display = 'none';
+            }
+
+            subtotalEl.innerText = `USD ${subtotal.toFixed(2)}`;
+            totalEl.innerText = `USD ${total.toFixed(2)}`;
+            
+            // Guardar carrito actualizado
+            localStorage.setItem('cart', JSON.stringify(cart));
+            localStorage.setItem('total_to_pay', total.toFixed(2));
+        }
+
+        function removeItem(index) {
+            cart.splice(index, 1);
+            if (cart.length === 0) window.location.href = '/';
+            else updateSummary();
+        }
+
+        function addMore(type) {
+            const context = JSON.parse(localStorage.getItem('search_context'));
+            if (context) {
+                // Si hay contexto, ir directo a resultados
+                let destination = context.destino;
+                // Para hoteles y transporte, si no hay destino específico, usar el destino del vuelo
+                if (type === 'hoteles' || type === 'transporte' || type === 'actividades') {
+                    destination = context.destino || context.origen;
+                }
+                window.location.href = `/results?type=${type}&origen=${encodeURIComponent(context.origen)}&destino=${encodeURIComponent(destination)}&fecha=${context.fecha}`;
+            } else {
+                // Fallback a la página principal
+                localStorage.setItem('cart', JSON.stringify(cart));
+                window.location.href = `/#${type}`;
+            }
+        }
+    </script>
+</body>
+</html>

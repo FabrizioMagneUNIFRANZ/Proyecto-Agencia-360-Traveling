@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>360º Traveling - Tu Viaje Soñado en Bolivianos</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <!-- Outfit Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">
+                <img src="{{ url_for('static', filename='img/logo-360-traveling.jpg') }}" alt="360° Traveling">
+                <span>360° <span class="highlight">Traveling</span></span>
+            </div>
+            <div class="nav-links">
+                <a href="#" class="active" data-target="vuelos">Vuelos</a>
+                <a href="#" data-target="hoteles">Hoteles</a>
+                <a href="#" data-target="paquetes">Paquetes</a>
+                <a href="#">Ofertas</a>
+            </div>
+            <div class="nav-actions">
+                <button class="btn-currency">BOB <i class="fa-solid fa-chevron-down"></i></button>
+                <button class="btn-support"><i class="fa-solid fa-headset"></i> Soporte</button>
+                <div class="user-profile">
+                    <i class="fa-solid fa-user-circle"></i> Mi Cuenta
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        <!-- Hero Section -->
+        <header class="hero">
+            <div class="hero-overlay"></div>
+            <div class="hero-content">
+                <h1 class="hero-title">360° <span class="highlight-text">Traveling</span></h1>
+                <p class="hero-subtitle">Miles de destinos, sin complicaciones. Planifica tu próxima aventura hoy.</p>
+                
+                <!-- Booking Engine -->
+                <div class="booking-engine">
+                    <div class="booking-tabs">
+                        <button class="tab-btn active" data-tab="vuelos"><i class="fa-solid fa-plane"></i> Vuelos</button>
+                        <button class="tab-btn" data-tab="hoteles"><i class="fa-solid fa-bed"></i> Hoteles</button>
+                        <button class="tab-btn" data-tab="vuelo_hotel"><i class="fa-solid fa-suitcase-rolling"></i> Vuelo + Hotel</button>
+                        <button class="tab-btn" data-tab="transporte"><i class="fa-solid fa-car"></i> Transporte</button>
+                        <button class="tab-btn" data-tab="seguros"><i class="fa-solid fa-shield-halved"></i> Seguros</button>
+                        <button class="tab-btn" data-tab="actividades"><i class="fa-solid fa-map-location-dot"></i> Actividades</button>
+                    </div>
+                    
+                    <div class="booking-forms">
+                        <!-- Vuelos/Paquetes Form -->
+                        <div id="search-form-container" class="booking-form active">
+                            <div class="form-row type-selector" id="trip-type-selector">
+                                <label><input type="radio" name="trip-type" checked> Ida y vuelta</label>
+                                <label><input type="radio" name="trip-type"> Solo ida</label>
+                                <label><input type="radio" name="trip-type"> Multidestino</label>
+                            </div>
+                            
+                            <div class="form-grid flights-grid" id="form-grid">
+                                <div class="input-group">
+                                    <label for="origin"><i class="fa-solid fa-location-dot"></i> Origen</label>
+                                    <input type="text" id="origin" placeholder="Ej. Santa Cruz (VVI)">
+                                </div>
+                                
+                                <button type="button" class="swap-btn" id="swap-locations">
+                                    <i class="fa-solid fa-arrow-right-arrow-left"></i>
+                                </button>
+                                
+                                <div class="input-group" id="destination-group">
+                                    <label for="destination"><i class="fa-solid fa-location-dot"></i> Destino</label>
+                                    <input type="text" id="destination" placeholder="Ej. Miami (MIA)">
+                                </div>
+                                
+                                <div class="input-group">
+                                    <label for="departure" id="departure-label"><i class="fa-regular fa-calendar"></i> Ida</label>
+                                    <input type="date" id="departure">
+                                </div>
+                                
+                                <div class="input-group" id="return-group">
+                                    <label for="return" id="return-label"><i class="fa-regular fa-calendar"></i> Vuelta</label>
+                                    <input type="date" id="return">
+                                </div>
+                                
+                                <div class="input-group">
+                                    <label for="passengers"><i class="fa-solid fa-user"></i> Pasajeros</label>
+                                    <div class="passenger-selector-container">
+                                        <div class="passenger-display" id="passenger-display-btn">
+                                            1 Adulto, 0 Niños
+                                        </div>
+                                        <div class="passenger-dropdown" id="passenger-dropdown">
+                                            <div class="passenger-type-row">
+                                                <div class="type-info">
+                                                    <span class="type-name">Adultos</span>
+                                                    <span class="type-desc">Desde 12 años</span>
+                                                </div>
+                                                <div class="counter-controls">
+                                                    <button type="button" class="count-btn" data-type="adults" data-action="sub">-</button>
+                                                    <span class="count-val" id="count-adults">1</span>
+                                                    <button type="button" class="count-btn" data-type="adults" data-action="add">+</button>
+                                                </div>
+                                            </div>
+                                            <div class="passenger-type-row">
+                                                <div class="type-info">
+                                                    <span class="type-name">Niños</span>
+                                                    <span class="type-desc">2 a 11 años</span>
+                                                </div>
+                                                <div class="counter-controls">
+                                                    <button type="button" class="count-btn" data-type="children" data-action="sub">-</button>
+                                                    <span class="count-val" id="count-children">0</span>
+                                                    <button type="button" class="count-btn" data-type="children" data-action="add">+</button>
+                                                </div>
+                                            </div>
+                                            <div class="dropdown-footer">
+                                                <button type="button" class="btn-search ripple" id="close-passengers" style="padding: 8px 15px; font-size: 0.9rem;">Listo</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="form-action">
+                                <button type="button" class="btn-search ripple" id="main-search-btn">
+                                    <i class="fa-solid fa-magnifying-glass"></i> <span id="search-btn-text">Buscar Vuelos</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Results Section -->
+        <section class="results" id="results-section" style="display: none;">
+            <div class="container">
+                <h2 class="section-title" id="results-title">Resultados de búsqueda</h2>
+                <div class="cards-grid" id="results-grid">
+                    <!-- Dinámico -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Recommendations/Offers Section -->
+        <section class="results" id="recommendations-section">
+            <div class="container">
+                <h2 class="section-title">Ofertas Exclusivas Online <i class="fa-solid fa-fire text-danger"></i></h2>
+                <div class="cards-grid">
+                    <div class="card">
+                        <div class="card-image">
+                            <img src="https://images.unsplash.com/photo-1514282401047-d79a71a590e8?auto=format&fit=crop&w=600&q=80" alt="Miami">
+                            <span class="badge">Vuelo Ida y Vuelta</span>
+                        </div>
+                        <div class="card-content">
+                            <h3>Miami <span class="country">🇺🇸</span></h3>
+                            <div class="route">
+                                <i class="fa-solid fa-plane-departure text-muted"></i> VVI <i class="fa-solid fa-arrow-right text-muted mx-1"></i> MIA
+                            </div>
+                            <div class="price-box">
+                                <span class="price-label">Precio Final desde</span>
+                                <div class="price">BOB 3,450</div>
+                            </div>
+                            <button class="btn-book">Ver Oferta</button>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-image">
+                            <img src="https://images.unsplash.com/photo-1552074284-5e88ef1aef18?auto=format&fit=crop&w=600&q=80" alt="Cancún">
+                            <span class="badge package">Súper Paquete</span>
+                        </div>
+                        <div class="card-content">
+                            <h3>Cancún, México <span class="country">🇲🇽</span></h3>
+                            <div class="route">
+                                <i class="fa-solid fa-bed text-muted"></i> 5 Noches + Vuelos + All Inclusive
+                            </div>
+                            <div class="price-box">
+                                <span class="price-label">Precio Final desde</span>
+                                <div class="price">BOB 7,890</div>
+                            </div>
+                            <button class="btn-book">Ver Oferta</button>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-image">
+                            <img src="https://images.unsplash.com/photo-1587502536575-6dfba0a6e017?auto=format&fit=crop&w=600&q=80" alt="Salar de Uyuni">
+                            <span class="badge package">Nacional</span>
+                        </div>
+                        <div class="card-content">
+                            <h3>Salar de Uyuni <span class="country">🇧🇴</span></h3>
+                            <div class="route">
+                                <i class="fa-solid fa-bed text-muted"></i> 3 Días | 2 Noches | Todo Incluido
+                            </div>
+                            <div class="price-box">
+                                <span class="price-label">Precio Final desde</span>
+                                <div class="price">BOB 2,400</div>
+                            </div>
+                            <button class="btn-book">Ver Oferta</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Benefits Section -->
+        <section class="benefits">
+            <div class="container">
+                <div class="benefits-grid">
+                    <div class="benefit-card">
+                        <div class="icon-wrap"><i class="fa-solid fa-money-bill-wave"></i></div>
+                        <h3>Paga en Bolivianos</h3>
+                        <p>Evita los cambios de moneda y comisiones internacionales.</p>
+                    </div>
+                    <div class="benefit-card">
+                        <div class="icon-wrap"><i class="fa-solid fa-shield-halved"></i></div>
+                        <h3>Reserva Segura</h3>
+                        <p>Miles de viajeros confían en nuestra plataforma garantizada.</p>
+                    </div>
+                    <div class="benefit-card">
+                        <div class="icon-wrap"><i class="fa-solid fa-clock"></i></div>
+                        <h3>Soporte 24/7</h3>
+                        <p>Estamos contigo antes, durante y después de tu viaje.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-col">
+                    <div class="logo footer-logo">
+                        <img src="{{ url_for('static', filename='img/logo-360-traveling.jpg') }}" alt="360° Traveling">
+                        <span>360° <span class="highlight">Traveling</span></span>
+                    </div>
+                    <p class="footer-text">Tu agencia de viajes de confianza en Bolivia. Descubre el mundo sin preocuparte por el tipo de cambio.</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fa-brands fa-facebook-f"></i></a>
+                        <a href="#"><i class="fa-brands fa-instagram"></i></a>
+                        <a href="#"><i class="fa-brands fa-tiktok"></i></a>
+                    </div>
+                </div>
+                <div class="footer-col">
+                    <h4>Servicios</h4>
+                    <ul>
+                        <li><a href="#">Vuelos Baratos</a></li>
+                        <li><a href="#">Hoteles</a></li>
+                        <li><a href="#">Paquetes Turísticos</a></li>
+                        <li><a href="#">Seguro de Viaje</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Soporte</h4>
+                    <ul>
+                        <li><a href="#">Centro de Ayuda</a></li>
+                        <li><a href="#">Políticas de Privacidad</a></li>
+                        <li><a href="#">Términos y Condiciones</a></li>
+                        <li><a href="#">Contacto</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Contáctanos</h4>
+                    <p class="contact-item"><i class="fa-solid fa-phone"></i> +591 800-123-456</p>
+                    <p class="contact-item"><i class="fa-brands fa-whatsapp"></i> +591 712-34567</p>
+                    <p class="contact-item"><i class="fa-solid fa-envelope"></i> reservas@360traveling.com</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 360° Traveling. Todos los derechos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

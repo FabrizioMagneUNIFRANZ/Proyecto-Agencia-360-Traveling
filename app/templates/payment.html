@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pago - 360° Traveling</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .payment-container { max-width: 800px; margin: 60px auto; text-align: center; }
+        .payment-card { background: var(--white); border-radius: var(--radius-lg); padding: 50px; box-shadow: var(--shadow-md); border: 1px solid var(--border); }
+        
+        .whatsapp-box {
+            background-color: #f0fdf4;
+            border: 2px dashed #25d366;
+            border-radius: var(--radius-md);
+            padding: 40px;
+            margin: 30px 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+        .whatsapp-icon { font-size: 4rem; color: #25d366; }
+        
+        .payment-steps { display: flex; justify-content: center; gap: 30px; margin-bottom: 40px; }
+        .step { display: flex; flex-direction: column; align-items: center; gap: 10px; width: 140px; }
+        .step-icon { width: 55px; height: 55px; border-radius: 50%; background: var(--bg-main); color: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 1.3rem; border: 2px solid var(--primary-light); }
+        .step-text { font-size: 0.9rem; color: var(--text-muted); font-weight: 600; }
+        
+        .amount-display {
+            display: inline-block;
+            margin-top: 20px;
+            text-align: center;
+        }
+        .amount-label { background: var(--primary); color: white; padding: 10px 30px; border-radius: var(--radius-sm) var(--radius-sm) 0 0; font-weight: 700; font-size: 0.9rem; }
+        .amount-value { border: 1px solid var(--border); border-top: none; padding: 20px 40px; border-radius: 0 0 var(--radius-sm) var(--radius-sm); font-size: 2.5rem; font-weight: 800; color: var(--text-main); background: #fafafa; }
+        
+        .btn-whatsapp {
+            background: #25d366;
+            color: white;
+            border: none;
+            padding: 18px 45px;
+            border-radius: 50px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 4px 15px rgba(37, 211, 102, 0.3);
+        }
+        .btn-whatsapp:hover { transform: translateY(-3px); box-shadow: 0 6px 20px rgba(37, 211, 102, 0.4); background: #20ba5a; }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="/" class="logo">
+                <img src="{{ url_for('static', filename='img/logo-360-traveling.jpg') }}" alt="360° Traveling">
+                <span>360° <span class="highlight">Traveling</span></span>
+            </a>
+            <div style="font-weight: 600; color: var(--text-muted);">
+                <span class="text-primary">1. Selección</span> <i class="fa-solid fa-chevron-right mx-1"></i>
+                <span class="text-primary">2. Checkout</span> <i class="fa-solid fa-chevron-right mx-1"></i>
+                <span style="color: var(--primary);">3. Pago</span>
+            </div>
+            <div class="nav-actions">
+                <div class="user-profile"><i class="fa-solid fa-lock"></i> SSL Secured</div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container payment-container">
+        <div class="payment-card">
+            <h2 style="font-size: 2.2rem; margin-bottom: 10px; font-weight: 800;">Finaliza tu Reserva</h2>
+            <p style="color: var(--text-muted); font-size: 1.1rem; margin-bottom: 40px;">Confirma los detalles con un agente para completar tu pago de forma segura.</p>
+
+            <div class="payment-steps">
+                <div class="step">
+                    <div class="step-icon"><i class="fa-solid fa-user-check"></i></div>
+                    <div class="step-text">Datos validados</div>
+                </div>
+                <div class="step">
+                    <div class="step-icon"><i class="fa-brands fa-whatsapp"></i></div>
+                    <div class="step-text">Contacta al agente</div>
+                </div>
+                <div class="step">
+                    <div class="step-icon"><i class="fa-solid fa-ticket"></i></div>
+                    <div class="step-text">Recibe tu ticket</div>
+                </div>
+            </div>
+
+            <div class="amount-display">
+                <div class="amount-label">Monto Total a Pagar</div>
+                <div class="amount-value" id="display-amount">USD 0.00</div>
+            </div>
+
+            <div class="whatsapp-box">
+                <div class="whatsapp-icon"><i class="fa-brands fa-whatsapp"></i></div>
+                <div style="text-align: center;">
+                    <h3 style="margin-bottom: 10px; font-weight: 800;">Atención Personalizada</h3>
+                    <p style="color: var(--text-muted); font-size: 0.95rem; max-width: 400px;">Al hacer clic, se abrirá un chat con nuestro equipo de reservas para coordinar tu método de pago preferido (QR, Transferencia o Tarjeta).</p>
+                </div>
+                <button id="btn-whatsapp-pay" class="btn-whatsapp">
+                    Ir a WhatsApp para Pagar <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </div>
+
+            <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 30px;">
+                <i class="fa-solid fa-circle-info text-primary"></i> Tu reserva está pre-confirmada por 15 minutos mientras completas el pago.
+            </p>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-bottom">
+                <p>&copy; 2026 360° Traveling. Todos los derechos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const cart = JSON.parse(localStorage.getItem('cart'));
+            const passenger = JSON.parse(localStorage.getItem('passenger_data'));
+            const totalToPay = localStorage.getItem('total_to_pay') || "0.00";
+            
+            if (!cart || !passenger) { window.location.href = '/'; return; }
+
+            document.getElementById('display-amount').innerText = `USD ${totalToPay}`;
+
+            document.getElementById('btn-whatsapp-pay').addEventListener('click', () => {
+                const phoneNumber = '59171234567';
+                const reservaId = localStorage.getItem('last_reserva_id') || "S/N";
+                
+                let servicesDetail = cart.map(item => `- *${item.type.toUpperCase()}:* ${item.route} (USD ${item.price})`).join('\n');
+                
+                const message = `¡Hola 360º Traveling!\n\nHe completado mis datos de reserva con el código: *#${reservaId}*\n\n*Servicios:*\n${servicesDetail}\n\n*TOTAL A PAGAR:* USD ${totalToPay}\n\n*Datos del Pasajero:*\n- *Nombre:* ${passenger.name} ${passenger.lastname}\n- *Email:* ${passenger.email}\n- *Teléfono:* ${passenger.phone}\n\n¿Podrían indicarme los pasos para realizar el pago?`;
+                const encodedMessage = encodeURIComponent(message);
+                const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodedMessage}`;
+                
+                window.open(whatsappUrl, '_blank');
+            });
+        });
+    </script>
+</body>
+</html>

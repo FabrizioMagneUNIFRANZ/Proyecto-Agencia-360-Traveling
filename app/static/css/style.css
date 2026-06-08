@@ -161,7 +161,95 @@ ul {
     color: var(--white);
 }
 
-/* Hero Section */
+/* Auth Screens */
+.login-container, .register-container {
+    max-width: 450px;
+    margin: 80px auto;
+    background: var(--white);
+    padding: 40px;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    position: relative;
+}
+
+.back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--text-muted);
+    font-weight: 500;
+    margin-bottom: 25px;
+    font-size: 0.95rem;
+}
+
+.back-link:hover {
+    color: var(--primary);
+    transform: translateX(-5px);
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: var(--text-main);
+}
+
+.form-group input, .form-group select {
+    width: 100%;
+    padding: 12px 15px;
+    border: 2px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-family: inherit;
+    font-size: 1rem;
+    transition: var(--transition);
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: var(--primary);
+}
+
+.btn-primary {
+    width: 100%;
+    padding: 14px;
+    background-color: var(--primary);
+    color: var(--white);
+    border: none;
+    border-radius: var(--radius-sm);
+    font-size: 1.1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: var(--transition);
+    margin-top: 10px;
+}
+
+.btn-primary:hover {
+    background-color: var(--primary-light);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.login-container h1, .register-container h1 {
+    margin-bottom: 30px;
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--primary);
+}
+
+.login-container p, .register-container p {
+    margin-top: 25px;
+    text-align: center;
+    color: var(--text-muted);
+}
+
+.login-container a:not(.back-link), .register-container a:not(.back-link) {
+    color: var(--secondary);
+    font-weight: 700;
+}
 .hero {
     position: relative;
     height: 650px;

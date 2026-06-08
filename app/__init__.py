@@ -29,6 +29,7 @@ def create_app():
     from app.routes.seguros import seguros_bp
     from app.routes.actividades import actividades_bp
     from app.routes.reservas import reservas_bp
+    from app.routes.admin import admin_bp
     
     app.register_blueprint(auth_bp, url_prefix='/api/auth')
     app.register_blueprint(vuelos_bp, url_prefix='/api/vuelos')
@@ -38,6 +39,7 @@ def create_app():
     app.register_blueprint(seguros_bp, url_prefix='/api/seguros')
     app.register_blueprint(actividades_bp, url_prefix='/api/actividades')
     app.register_blueprint(reservas_bp, url_prefix='/api/reservas')
+    app.register_blueprint(admin_bp, url_prefix='/api/admin')
     
     # Rutas de prueba base
     @app.route('/')
@@ -55,5 +57,17 @@ def create_app():
     @app.route('/payment')
     def payment():
         return render_template('payment.html')
+
+    @app.route('/login')
+    def login_page():
+        return render_template('login.html')
+
+    @app.route('/register')
+    def register_page():
+        return render_template('register.html')
+
+    @app.route('/dashboard')
+    def dashboard():
+        return render_template('dashboard.html')
 
     return app

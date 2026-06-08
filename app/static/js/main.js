@@ -172,6 +172,32 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // --- AUTH LOGIC FOR "MI CUENTA" ---
+    const userMenuBtn = document.getElementById('user-menu-btn');
+    const userMenuText = document.getElementById('user-menu-text');
+
+    function updateAuthUI() {
+        const userStr = localStorage.getItem('user');
+        if (userStr) {
+            const user = JSON.parse(userStr);
+            userMenuText.textContent = user.correo_usuario.split('@')[0];
+        } else {
+            userMenuText.textContent = 'Mi Cuenta';
+        }
+    }
+
+    if (userMenuBtn) {
+        userMenuBtn.addEventListener('click', () => {
+            const token = localStorage.getItem('token');
+            if (token) {
+                window.location.href = '/dashboard';
+            } else {
+                window.location.href = '/login';
+            }
+        });
+        updateAuthUI();
+    }
+
     // Passenger Selector Logic
     const passengerDisplay = document.getElementById('passenger-display-btn');
     const passengerDropdown = document.getElementById('passenger-dropdown');

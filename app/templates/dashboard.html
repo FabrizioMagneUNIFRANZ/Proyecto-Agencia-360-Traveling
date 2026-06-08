@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - 360° Traveling</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">
+                <a href="/" style="text-decoration: none; color: inherit; display: flex; align-items: center;">
+                    <img src="{{ url_for('static', filename='img/logo-360-traveling.jpg') }}" alt="360° Traveling">
+                    <span>360° <span class="highlight">Traveling</span></span>
+                </a>
+            </div>
+            <div class="nav-actions">
+                <span id="user-info"></span>
+                <button id="logout-btn" class="btn-support"><i class="fa-solid fa-sign-out-alt"></i> Cerrar Sesión</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="dashboard-container">
+        <aside class="sidebar">
+            <ul id="sidebar-menu">
+                <!-- Dinámico según el rol -->
+            </ul>
+        </aside>
+        
+        <main class="dashboard-content">
+            <header class="dashboard-header">
+                <h1 id="dashboard-title">Panel de Control</h1>
+            </header>
+            
+            <section id="dashboard-stats" class="stats-grid" style="display: none;">
+                <!-- Estadísticas para Agentes/Admin -->
+            </section>
+
+            <section id="dashboard-main-content">
+                <div class="card">
+                    <h3>Cargando información...</h3>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const token = localStorage.getItem('token');
+            const userStr = localStorage.getItem('user');
+            
+            if (!token || !userStr) {
+                window.location.href = '/login';
+                return;
+            }
+
+            const user = JSON.parse(userStr);
+            document.getElementById('user-info').textContent = `${user.correo_usuario} (${user.rol})`;
+            
+            const sidebarMenu = document.getElementById('sidebar-menu');
+            const dashboardStats = document.getElementById('dashboard-stats');
+            const mainContent = document.getElementById('dashboard-main-content');
+            
+            // Configurar menú según rol
+            let menuHtml = '';
+            if (user.rol === 'cliente') {
+                menuHtml = `
+                    <li><a href="#" class="active"><i class="fa-solid fa-clock-rotate-left"></i> Mis Reservas</a></li>
+                    <li><a href="#"><i class="fa-solid fa-user"></i> Mi Perfil</a></li>
+                `;
+                document.getElementById('dashboard-title').textContent = 'Mis Viajes';
+                loadClienteHistory();
+            } else {
+                menuHtml = `
+                    <li><a href="#" class="active"><i class="fa-solid fa-chart-line"></i> Dashboard</a></li>
+                    <li><a href="#"><i class="fa-solid fa-plane"></i> Vuelos</a></li>
+                    <li><a href="#"><i class="fa-solid fa-hotel"></i> Hoteles</a></li>
+                    <li><a href="#"><i class="fa-solid fa-suitcase"></i> Paquetes</a></li>
+                `;
+                if (user.rol === 'administrador') {
+                    menuHtml += `
+                        <li><a href="#"><i class="fa-solid fa-users"></i> Usuarios</a></li>
+                        <li><a href="#"><i class="fa-solid fa-file-invoice-dollar"></i> Ventas Agentes</a></li>
+                    `;
+                }
+                dashboardStats.style.display = 'grid';
+                loadAdminDashboard();
+            }
+            sidebarMenu.innerHTML = menuHtml;
+
+            // Logout logic
+            document.getElementById('logout-btn').addEventListener('click', () => {
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+                window.location.href = '/';
+            });
+
+            async function loadAdminDashboard() {
+                try {
+                    const response = await fetch('/api/admin/dashboard/servicios', {
+                        headers: { 'x-access-token': token }
+                    });
+                    const data = await response.json();
+                    
+                    if (response.ok) {
+                        dashboardStats.innerHTML = `
+                            <div class="stat-card">
+                                <i class="fa-solid fa-plane"></i>
+                                <div><h4>Vuelos</h4><p>${data.vuelos}</p></div>
+                            </div>
+                            <div class="stat-card">
+                                <i class="fa-solid fa-hotel"></i>
+                                <div><h4>Hoteles</h4><p>${data.hoteles}</p></div>
+                            </div>
+                            <div class="stat-card">
+                                <i class="fa-solid fa-suitcase"></i>
+                                <div><h4>Paquetes</h4><p>${data.paquetes}</p></div>
+                            </div>
+                            <div class="stat-card">
+                                <i class="fa-solid fa-car"></i>
+                                <div><h4>Traslados</h4><p>${data.traslados}</p></div>
+                            </div>
+                        `;
+                        mainContent.innerHTML = '<div class="card"><h3>Bienvenido al Panel de Gestión</h3><p>Seleccione una opción del menú para comenzar.</p></div>';
+                    }
+                } catch (error) {
+                    console.error('Error loading dashboard:', error);
+                }
+            }
+
+            async function loadClienteHistory() {
+                mainContent.innerHTML = '<div class="card"><h3>Historial de Reservas</h3><p>No tienes reservas activas por el momento.</p></div>';
+            }
+        });
+    </script>
+
+    <style>
+        .dashboard-container { display: flex; min-height: calc(100vh - 70px); background: #f4f7f6; }
+        .sidebar { width: 250px; background: #fff; padding: 20px; border-right: 1px solid #ddd; }
+        .sidebar ul { list-style: none; padding: 0; }
+        .sidebar li { margin-bottom: 10px; }
+        .sidebar a { display: flex; align-items: center; gap: 10px; padding: 12px; text-decoration: none; color: #333; border-radius: 8px; transition: 0.3s; }
+        .sidebar a:hover, .sidebar a.active { background: var(--primary-color, #0056b3); color: #fff; }
+        .dashboard-content { flex: 1; padding: 30px; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px; }
+        .stat-card { background: #fff; padding: 20px; border-radius: 12px; display: flex; align-items: center; gap: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .stat-card i { font-size: 2rem; color: var(--primary-color, #0056b3); }
+        .stat-card h4 { margin: 0; color: #666; font-size: 0.9rem; }
+        .stat-card p { margin: 0; font-size: 1.5rem; font-weight: bold; }
+        .card { background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        #user-info { margin-right: 15px; font-weight: 500; color: #666; }
+    </style>
+</body>
+</html>

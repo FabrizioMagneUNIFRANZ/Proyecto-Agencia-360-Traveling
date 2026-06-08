@@ -11,7 +11,7 @@ CREATE TABLE USUARIO (
     id_usuario INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     rol ENUM('cliente', 'agente', 'administrador') NOT NULL,
     correo_usuario VARCHAR(100) NOT NULL UNIQUE,
-    contraseña VARCHAR(100) NOT NULL,
+    contraseña VARCHAR(255) NOT NULL,
     fecha_registro DATE NOT NULL,
     estado ENUM('activo','inactivo') NOT NULL DEFAULT 'activo'
 );

@@ -17,19 +17,21 @@ def confirmar_reserva():
         
         # 1. Buscar o crear el Cliente (Simplificado: buscamos por CI)
         cliente = Cliente.query.filter_by(ci=data['doc_num']).first()
-        
+        print(f"DEBUG data recibida: {data}")
         if not cliente:
             # Para este flujo, si no existe, creamos un Usuario temporal o usamos uno genérico
             # En un flujo real, el usuario ya debería estar logueado o registrarse
-            usuario_generico = Usuario.query.filter_by(rol='cliente').first()
+            usuario_generico = Usuario.query.filter_by(correo_usuario=data['email']).first()
             if not usuario_generico:
                 # Crear un usuario base si no existe ninguno
+                print(f"DEBUG creando usuario con email: {data['email']}")
                 usuario_generico = Usuario(
                     rol='cliente',
                     correo_usuario=data['email'],
-                    contraseña='password123', # Hash en producción
+                    # contraseña='password123', # Hash en producción
                     fecha_registro=date.today()
                 )
+                usuario_generico.set_password(data.get('password', 'password123'))
                 db.session.add(usuario_generico)
                 db.session.flush()
 
